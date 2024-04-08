@@ -1,4 +1,10 @@
-async function carregarRepositorios(nomeUsuario) {
+async function carregarRepositorios() {
+    const nomeUsuario = document.getElementById('nomeUsuario').value;
+    if (!nomeUsuario) {
+        alert('Por favor, insira um nome de usuário do GitHub.');
+        return;
+    }
+
     try {
         const resposta = await fetch(`https://api.github.com/users/${nomeUsuario}/repos`);
         const repositorios = await resposta.json();
@@ -15,90 +21,61 @@ async function carregarRepositorios(nomeUsuario) {
         console.error('Erro ao carregar repositórios:', erro);
     }
 }
+// Função para adicionar uma tarefa à lista
 
-function exibirTarefas() {
-    const descricaoTarefa = document.getElementById('taskDescription');
-    const dataHoraTarefa = document.getElementById('taskDatetime');
-    const listaTarefas = document.getElementById('taskList');
-    listaTarefas.innerHTML = '';
-
-    const tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
-    tarefas.forEach(tarefa => {
-        const itemLista = document.createElement('li');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = tarefa.completada; 
-        checkbox.addEventListener('change', function() {
-            tarefa.completada = this.checked;
-            atualizarTarefa(tarefa);
-        });
-        itemLista.appendChild(checkbox);
-
-        const conteudoTarefa = document.createElement('span');
-        conteudoTarefa.textContent = tarefa.conteudo + ' - ' + descricaoTarefa.value + " - " + tarefa.repo + ' - ' + dataHoraTarefa.value;
-        if (tarefa.completada) {
-            conteudoTarefa.classList.add('completada');
-        }
-        itemLista.appendChild(conteudoTarefa);
-
-        const botaoRemover = document.createElement('button');
-        botaoRemover.textContent = 'Remover';
-        botaoRemover.addEventListener('click', function() {
-            removerTarefa(tarefa.id);
-        });
-        itemLista.appendChild(botaoRemover);
-
-        listaTarefas.appendChild(itemLista);
-    });
-}
+let contadorTarefas = 0;
 
 function adicionarTarefa() {
-    const entradaTarefa = document.getElementById('taskInput');
-    const valorEntradaTarefa = entradaTarefa.value.trim();
-    if (valorEntradaTarefa === '') return;
+    const inputTarefa = document.getElementById('taskInput').value;
+    if (!inputTarefa) {
+        alert('Por favor, insira uma tarefa.');
+        return;
+    }
 
-    const tarefa = {
-        id: Date.now(),
-        conteudo: valorEntradaTarefa,
-        completada: false,
-        repo: document.getElementById('repoSelect').value
-    };
+    const listaTarefas = document.getElementById('taskList');
+    const novaTarefa = document.createElement('li');
+    novaTarefa.textContent = inputTarefa;
+    novaTarefa.setAttribute('data-id', contadorTarefas);
+    contadorTarefas++;
+    novaTarefa.addEventListener('click', removerTarefa); // Adiciona evento de clique para remover a tarefa
+    listaTarefas.appendChild(novaTarefa);
 
-    const tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
-    tarefas.push(tarefa);
-    localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    // Limpa o campo de entrada após adicionar a tarefa
+    document.getElementById('taskInput').value = '';
 
-    entradaTarefa.value = '';
-    document.getElementById('repoSelect').selectedIndex = 0;
-
-    exibirTarefas();
+    exibirTarefa();
 }
 
-function atualizarTarefa(tarefaAtualizada) {
-    const tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
-    const indice = tarefas.findIndex(tarefa => tarefa.id === tarefaAtualizada.id);
-    if (indice !== -1) {
-        tarefas[indice] = tarefaAtualizada;
-        localStorage.setItem('tarefas', JSON.stringify(tarefas));
-        exibirTarefas();
+function removerTarefa(event) {
+    const tarefaSelecionada = event.target;
+    const confirmacao = confirm(`Tem certeza de que deseja remover a tarefa "${tarefaSelecionada.textContent}"?`);
+    if (confirmacao) {
+        tarefaSelecionada.removeEventListener('click', removerTarefa); // Remove o evento de clique antes de remover a tarefa
+        tarefaSelecionada.remove();
     }
 }
 
-function removerTarefa(idTarefa) {
-    let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
-    tarefas = tarefas.filter(tarefa => tarefa.id !== idTarefa);
-    localStorage.setItem('tarefas', JSON.stringify(tarefas));
-    exibirTarefas();
+document.querySelector('button').addEventListener('click', adicionarTarefa);
+
+// Função para exibir as informações da tarefa selecionada
+function exibirTarefa() {
+    // Captura a lista de tarefas
+    const listaTarefas = document.getElementById('taskList');
+
+    // Captura a tarefa selecionada
+    const tarefaSelecionada = listaTarefas.querySelector('li.selected');
+    if (!tarefaSelecionada) {
+        alert('Selecione uma tarefa para exibir.');
+        return;
+    }
+
+    // Exibe as informações da tarefa selecionada
+    alert(tarefaSelecionada.textContent);
 }
 
-const entradaUsuario = document.getElementById('nomeUsuario');
-entradaUsuario.addEventListener('blur', function () {
-    const nomeUsuario = entradaUsuario.value;
-    if (nomeUsuario.trim() !== '') {
-        carregarRepositorios(nomeUsuario);
-    }
-});
+// Adiciona um evento de clique ao botão de adicionar tarefa
+document.querySelector('button').addEventListener('click', adicionarTarefa);
 
-window.addEventListener('load', function () {
-    exibirTarefas();
-});
+// Adiciona eventos de clique aos botões de remover e exibir tarefa
+document.getElementById('removeTaskBtn').addEventListener('click', removerTarefa);
+document.getElementById('showTaskBtn').addEventListener('click', exibirTarefa);
