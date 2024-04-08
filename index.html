@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script async src="script.js"></script>
+    <title>Lista de Tarefas</title>
+</head>
+
+<body>
+    <section class="container">
+        <div>
+            <h2>LISTA DE TAREFAS <img src="src/image.png" alt="tarefa"></h2>
+        </div>
+        <div>
+            <div class="typetask">
+                <label>
+                    <input type="text" id="taskInput" placeholder="Nova tarefa">
+                </label>
+            </div>
+            <div class="typetask1">
+                <label>
+                    <input type="text" id="nomeUsuario" placeholder="Nome de usuário GitHub" onblur="carregarRepositorios()">
+                </label>
+            </div>
+               <div class="typetask2">
+                <label>
+                    <select id="repoSelect">
+                        <option selected disabled>Selecione um repositório</option>
+                    </select>
+                </label>
+               </div>
+                <div class="data">
+                    <label>
+                        <input type="date" id="txtData" placeholder="Data">
+                    </label>
+                </div>
+            
+                
+            <button onclick="adicionarTarefa()">Adicionar Tarefa</button>
+            <div class="lista">
+                <ul id="taskList"></ul>
+            </div>
+        </div>
+    </section>
+</body>
+            
+            
+               
+        
+            
+
+
+</html>
